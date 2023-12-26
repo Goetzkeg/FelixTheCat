@@ -1,0 +1,18 @@
+{
+    "CAT_NAME": "SchopfeAruba",
+    "MQTT_KEEPALIVE": 120,
+    "MQTT_SERVER": "mqtt.winkekatze24.de",
+    "WIFI_SSID": "hamburg.freifunk.net",
+    "WIFI_PASS": "",
+    "LED_COUNT": 2,
+    "LED_ORDER": [
+        1,
+        0,
+        2,
+        3
+    ],
+    "LED_PIN": 7,
+    "SERVO_PIN": 17,
+    "Magnet_PIN": 12,
+    "KIDS_MODE": false
+}
