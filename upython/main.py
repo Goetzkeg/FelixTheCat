@@ -23,7 +23,12 @@ KIDS_MODE = getattr(CONFIG, "KIDS_MODE", False)
 LED_PIN = getattr(CONFIG, "LED_PIN", "7")
 LED_COUNT = getattr(CONFIG, "LED_COUNT", "2")
 LED_ORDER = getattr(CONFIG, "LED_ORDER", None)  # RGB not GRB
+
 EYES = Eyes(LED_PIN, LED_COUNT, LED_ORDER)
+SERVO = Servo(SERVO_PIN)
+MAGNET = Magnet(Magnet_PIN)
+
+
 MQTT_CLIENT = Wrapper()
 CAT_NAME = getattr(CONFIG, "CAT_NAME", "FelixTheCat")
 # MQTT_PREFIX = getattr(CONFIG, "MQTT_PREFIX", "winkekatze")
@@ -83,8 +88,8 @@ def wink():
     print("^-^/")
     MQTT_CLIENT.publish(MQTT_TOPIC_STATUS, "fishing")
     EYES.show()
-    Servo(SERVO_PIN).wave()
-    Magnet(Magnet_PIN).wave()
+    SERVO.wave()
+    MAGNET.wave()
     EYES.show("black")
 
 

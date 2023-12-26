@@ -6,13 +6,12 @@ from machine import Pin, PWM
 class Servo:
     """Represent a Servo."""
 
-    back = 50
-    front = 100
-    middle = 75
-    pause = 0.2
-
-    def __init__(self, pin) -> None:
+    def __init__(self, pin, back = 50, front = 100, middle = 75, pause = 0.2) -> None:
         self.pin = pin
+        self.back = back
+        self.front = front
+        self.middle = middle
+        self.pause = pause
 
     def wave(self):
         """Wave arm."""
