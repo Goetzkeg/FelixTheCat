@@ -4,30 +4,35 @@ from machine import reset, unique_id
 from ubinascii import hexlify
 from time import sleep
 
+
 from umqtt.simple import MQTTException
 
 from config import Config
 from led import Eyes
 from mqtt import Wrapper
 from net import NetworkManager
+import wifimgr
+
 from servo import Servo
+from magnet import Magnet
 
 CONFIG = Config()
-SERVO_PIN = getattr(CONFIG, "SERVO_PIN", "5")
+SERVO_PIN = getattr(CONFIG, "SERVO_PIN", "17")
+Magnet_PIN = getattr(CONFIG, "Magnet_PIN", "12")
 KIDS_MODE = getattr(CONFIG, "KIDS_MODE", False)
-LED_PIN = getattr(CONFIG, "LED_PIN", "4")
+LED_PIN = getattr(CONFIG, "LED_PIN", "7")
 LED_COUNT = getattr(CONFIG, "LED_COUNT", "2")
 LED_ORDER = getattr(CONFIG, "LED_ORDER", None)  # RGB not GRB
 EYES = Eyes(LED_PIN, LED_COUNT, LED_ORDER)
 MQTT_CLIENT = Wrapper()
 CAT_NAME = getattr(CONFIG, "CAT_NAME", "FelixTheCat")
-MQTT_PREFIX = getattr(CONFIG, "MQTT_PREFIX", "winkekatze")
+# MQTT_PREFIX = getattr(CONFIG, "MQTT_PREFIX", "winkekatze")
 
 MQTT_CLIENT_ID = hexlify(unique_id())
 MQTT_KEEPALIVE = getattr(CONFIG, "MQTT_KEEPALIVE", 120)
 MQTT_SERVER = getattr(CONFIG, "MQTT_SERVER", "test.mosquitto.org")
 
-MQTT_TOPIC_BASE = f"{MQTT_PREFIX}/{CAT_NAME}"
+MQTT_TOPIC_BASE = f"{CAT_NAME}"
 MQTT_TOPIC_CONNECTED = f"{MQTT_TOPIC_BASE}/connected"
 MQTT_TOPIC_STATUS = f"{MQTT_TOPIC_BASE}/status"
 MQTT_TOPIC_UPTIME = f"{MQTT_TOPIC_BASE}/uptime"
@@ -79,6 +84,7 @@ def wink():
     MQTT_CLIENT.publish(MQTT_TOPIC_STATUS, "fishing")
     EYES.show()
     Servo(SERVO_PIN).wave()
+    Magnet(Magnet_PIN).wave()
     EYES.show("black")
 
 
@@ -94,14 +100,24 @@ def main():
     """Provide main routine."""
     ssid = getattr(CONFIG, "WIFI_SSID", "")
     password = getattr(CONFIG, "WIFI_PASS", "")
-    NetworkManager().do_connect(ssid, password, hostname=CAT_NAME)
+
+    ## first try the config in config.json
+    try:
+        NetworkManager().do_connect(ssid, password, hostname=CAT_NAME)
+    except:
+        wlan = wifimgr.get_connection()
+
 
     EYES.show("yellow")
 
     MQTT_CLIENT.DEBUG = True  # enable debug mode
     MQTT_CLIENT.on_connect = mqtt_connect_handler
     MQTT_CLIENT.on_message = mqtt_message_handler
+
+    ## one of the following two should work
     MQTT_CLIENT.set_last_will(MQTT_TOPIC_CONNECTED, "0", retain=True)
+    MQTT_CLIENT.will_set(MQTT_TOPIC_CONNECTED, "0", retain=True)
+
 
     while True:
         if not MQTT_CLIENT.connected:
